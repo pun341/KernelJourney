@@ -1,0 +1,21 @@
+#!/bin/bash
+# Set the number of 1024-byte blocks for the USB image
+BLOCKS=1440
+rm ./boot.img
+# Set the output file name for the USB image
+IMAGE_FILE="boot.img"
+
+# Set the device name for the USB drive
+USB_DEVICE="/dev/sdb"
+
+# Assemble the boot sector code
+nasm -f bin kernel.asm -o boot.bin
+
+# Create the USB boot image
+mkfs.fat -C -n "BOOT" -S 1024 -f 2 -R 1 -F 12 $IMAGE_FILE $BLOCKS
+
+# Copy the boot sector to the USB image
+dd if=boot.bin of=$IMAGE_FILE bs=1024 count=1
+
+# Copy the USB image to the USB drive
+dd if=$IMAGE_FILE of=$USB_DEVICE bs=1024
